@@ -1,51 +1,20 @@
+#!groovy
+
+@Library('jenkins-shared-library@main') _
+
+def test = new org.test()
+
 pipeline {
-  agent {
-    kubernetes {
-      //inheritFrom 'mypod'
-      yaml """
-      apiVersion: v1
-      kind: Pod
-      spec:
-        containers:
-        - name: maven
-          image: maven:alpine
-          command:
-          - cat
-          tty: true   
-        - name: golang
-          image: golang:1.16.5
-          command:
-          - sleep
-          args:
-          - 99d                          
-      """
-      retries 2
+    agent any
+    stages {     
+        stage('Stage 1') {
+            steps {
+                script {
+                    test.librarytest()
+                    log.info('Starting')
+                    log.warning('11','22')
+                }
+            }
+        }                      
     }
-  }
-  stages {
-    stage('Run maven') {
-      steps {
-        container('maven') {
-          sh 'touch a.txt'
-        }
-      }
-    }
-    stage('Run golang') {
-      steps {
-        container('golang') {
-          sh 'ls;pwd'
-        }
-      }
-    }  
-    // stage('Run alpine') {
-    //   agent {
-    //     node {
-    //       label 'slave'
-    //     }
-    //   }
-    //   steps {
-    //     sh 'hostname;pwd'
-    //   }
-    // }
-  }
 }
